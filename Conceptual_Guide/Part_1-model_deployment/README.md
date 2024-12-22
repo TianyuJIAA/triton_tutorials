@@ -110,6 +110,29 @@ trace_input = torch.randn(1, 1, 32, 100)
 torch.onnx.export(model, trace_input, "str.onnx", verbose=True)
 ```
 
+cpu导出onnx的代码:
+```python
+import torch
+from utils.model import STRModel
+
+# Create PyTorch Model Object
+model = STRModel(input_channels=1, output_channels=512, num_classes=37)
+
+# Load model weights from external file and map them to CPU
+state = torch.load("None-ResNet-None-CTC.pth", map_location=torch.device('cpu'))
+state = {key.replace("module.", ""): value for key, value in state.items()}
+model.load_state_dict(state)
+
+# Create ONNX file by tracing model
+trace_input = torch.randn(1, 1, 32, 100)
+torch.onnx.export(model, trace_input, "str.onnx", verbose=True)
+```
+
+> pb模型文件 vs pth模型文件区别一览图
+
+![pb_vs_pth](./img/pb_vs_pth.png)
+
+
 ### Setting up the model repository
 
 A [model repository](https://docs.nvidia.com/deeplearning/triton-inference-server/user-guide/docs/user_guide/model_repository.html) is Triton's way of reading your models and any associated metadata with each model (configurations, version files, etc.). These model repositories can live in a local or network attached filesystem, or in a cloud object store like AWS S3, Azure Blob Storage or Google Cloud Storage. For more details on model repository location, refer to [the documentation](https://docs.nvidia.com/deeplearning/triton-inference-server/user-guide/docs/user_guide/model_repository.html#model-repository-locations). Servers can use also multiple different model repositories. For simplicity, this explanation only uses a single repository stored in the [local filesystem](https://docs.nvidia.com/deeplearning/triton-inference-server/user-guide/docs/user_guide/model_repository.html#local-file-system), in the following format:

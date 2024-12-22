@@ -10,3 +10,5 @@
 
 # Downloaded Assets
 **/downloads
+*.pb
+*.pth
